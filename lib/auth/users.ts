@@ -1,76 +1,65 @@
-export type NotificationPreferenceKey =
-  | "deadlineReminders"
-  | "paymentConfirmed"
-  | "refundAvailable";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import { join } from "path";
+import { randomUUID } from "crypto";
 
-export type NotificationPreferences = Record<NotificationPreferenceKey, boolean>;
+const DATA_DIR = join(process.cwd(), "data");
+const USERS_FILE = join(DATA_DIR, "users.json");
 
-export interface User {
+export interface StoredUser {
   id: string;
-  notificationPreferences: NotificationPreferences;
+  email: string;
+  name: string;
+  passwordHash: string;
+  createdAt: string;
 }
 
-export const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
-  deadlineReminders: true,
-  paymentConfirmed: true,
-  refundAvailable: true,
-};
-
-const NOTIFICATION_KEYS: NotificationPreferenceKey[] = [
-  "deadlineReminders",
-  "paymentConfirmed",
-  "refundAvailable",
-];
-
-const globalKey = "__payeasy_user_store__";
-const globalAny = globalThis as unknown as { [globalKey]?: Map<string, User> };
-if (!globalAny[globalKey]) {
-  globalAny[globalKey] = new Map<string, User>();
-}
-const store: Map<string, User> = globalAny[globalKey]!;
-
-export function getUser(userId: string): User {
-  const existing = store.get(userId);
-  if (existing) return existing;
-  const created: User = {
-    id: userId,
-    notificationPreferences: { ...DEFAULT_NOTIFICATION_PREFERENCES },
-  };
-  store.set(userId, created);
-  return created;
+export interface PublicUser {
+  id: string;
+  email: string;
+  name: string;
 }
 
-export function getNotificationPreferences(userId: string): NotificationPreferences {
-  return { ...getUser(userId).notificationPreferences };
-}
-
-export function updateNotificationPreferences(
-  userId: string,
-  patch: Partial<NotificationPreferences>,
-): NotificationPreferences {
-  const user = getUser(userId);
-  const sanitized: Partial<NotificationPreferences> = {};
-  for (const key of NOTIFICATION_KEYS) {
-    if (key in patch && typeof patch[key] === "boolean") {
-      sanitized[key] = patch[key];
-    }
+function readUsers(): StoredUser[] {
+  if (!existsSync(USERS_FILE)) {
+    if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+    writeFileSync(USERS_FILE, "[]");
+    return [];
   }
-  user.notificationPreferences = {
-    ...user.notificationPreferences,
-    ...sanitized,
-  };
-  store.set(userId, user);
-  return { ...user.notificationPreferences };
+  return JSON.parse(readFileSync(USERS_FILE, "utf-8")) as StoredUser[];
 }
 
-export function isValidNotificationPatch(
-  value: unknown,
-): value is Partial<NotificationPreferences> {
-  if (!value || typeof value !== "object") return false;
-  const obj = value as Record<string, unknown>;
-  for (const key of Object.keys(obj)) {
-    if (!NOTIFICATION_KEYS.includes(key as NotificationPreferenceKey)) return false;
-    if (typeof obj[key] !== "boolean") return false;
-  }
-  return true;
+function writeUsers(users: StoredUser[]): void {
+  writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+}
+
+export function findUserByEmail(email: string): StoredUser | undefined {
+  return readUsers().find(
+    (u) => u.email.toLowerCase() === email.toLowerCase()
+  );
+}
+
+export function findUserById(id: string): StoredUser | undefined {
+  return readUsers().find((u) => u.id === id);
+}
+
+export function createUser(
+  email: string,
+  name: string,
+  passwordHash: string
+): StoredUser {
+  const users = readUsers();
+  const user: StoredUser = {
+    id: randomUUID(),
+    email: email.toLowerCase().trim(),
+    name: name.trim(),
+    passwordHash,
+    createdAt: new Date().toISOString(),
+  };
+  users.push(user);
+  writeUsers(users);
+  return user;
+}
+
+export function toPublicUser(user: StoredUser): PublicUser {
+  return { id: user.id, email: user.email, name: user.name };
 }

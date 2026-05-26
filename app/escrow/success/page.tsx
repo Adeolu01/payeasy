@@ -2,9 +2,9 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import confetti from "canvas-confetti";
 import { CheckCircle2, Copy, Share2, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import Confetti from "@/components/ui/confetti";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -20,14 +20,6 @@ function SuccessContent() {
       router.push("/escrow/create");
       return;
     }
-
-    // Trigger confetti animation
-    void confetti({
-      particleCount: 150,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ["#22c55e", "#3b82f6", "#eab308", "#a855f7"],
-    });
 
     // Auto redirect logic
     const timer = setInterval(() => {
@@ -77,7 +69,8 @@ function SuccessContent() {
   };
 
   return (
-    <div className="flex min-h-[80vh] items-center justify-center p-4">
+    <main aria-label="Escrow Creation Success" className="flex min-h-[80vh] items-center justify-center p-4">
+      <Confetti />
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -142,7 +135,7 @@ function SuccessContent() {
           </button>
         </div>
       </motion.div>
-    </div>
+    </main>
   );
 }
 
