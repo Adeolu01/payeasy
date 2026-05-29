@@ -124,3 +124,15 @@ export function updateNotificationPreferences(
 
   return updatedPrefs;
 }
+
+export function updateUserPasswordHash(userId: string, passwordHash: string): void {
+  const users = readUsers();
+  const userIndex = users.findIndex((u) => u.id === userId);
+
+  if (userIndex === -1) {
+    throw new Error("User not found");
+  }
+
+  users[userIndex].passwordHash = passwordHash;
+  writeUsers(users);
+}
