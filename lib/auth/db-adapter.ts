@@ -39,8 +39,8 @@ export class FileDataStore implements DataStore {
         // Try to create lock file exclusively
         await fs.open(this.lockFile, "wx");
         return;
-      } catch (err: any) {
-        if (err.code !== "EEXIST") throw err;
+      } catch (err) {
+        if ((err as NodeJS.ErrnoException).code !== "EEXIST") throw err;
 
         // Check lock timeout
         if (Date.now() - startTime > this.lockTimeout) {
@@ -59,9 +59,9 @@ export class FileDataStore implements DataStore {
     const fs = require("fs").promises;
     try {
       await fs.unlink(this.lockFile);
-    } catch (err: any) {
+    } catch (err) {
       // Lock file already removed or doesn't exist
-      if (err.code !== "ENOENT") throw err;
+      if ((err as NodeJS.ErrnoException).code !== "ENOENT") throw err;
     }
   }
 
@@ -136,13 +136,41 @@ export class FileDataStore implements DataStore {
 }
 
 /**
+ * Raw user record as returned by the Prisma client.
+ */
+interface PrismaUserRecord {
+  id: string;
+  email: string;
+  name: string;
+  passwordHash: string;
+  createdAt: Date;
+}
+
+/**
+ * Minimal structural type describing the subset of the Prisma client this
+ * adapter relies on. Avoids a hard dependency on the generated client types
+ * (which are only available when Prisma is installed).
+ */
+interface PrismaClientLike {
+  user: {
+    findUnique(args: {
+      where: { email?: string; id?: string };
+    }): Promise<PrismaUserRecord | null>;
+    create(args: {
+      data: { email: string; name: string; passwordHash: string };
+    }): Promise<PrismaUserRecord>;
+    findMany(): Promise<PrismaUserRecord[]>;
+  };
+}
+
+/**
  * Database-backed DataStore implementation using Prisma.
  * Suitable for production deployments.
  */
 export class DatabaseDataStore implements DataStore {
-  private prisma: any;
+  private prisma: PrismaClientLike;
 
-  constructor(prismaClient: any) {
+  constructor(prismaClient: PrismaClientLike) {
     this.prisma = prismaClient;
   }
 
@@ -181,10 +209,10 @@ export class DatabaseDataStore implements DataStore {
 
   async getAllUsers(): Promise<StoredUser[]> {
     const users = await this.prisma.user.findMany();
-    return users.map((user: any) => this.mapPrismaUserToStoredUser(user));
+    return users.map((user) => this.mapPrismaUserToStoredUser(user));
   }
 
-  private mapPrismaUserToStoredUser(user: any): StoredUser {
+  private mapPrismaUserToStoredUser(user: PrismaUserRecord): StoredUser {
     return {
       id: user.id,
       email: user.email,

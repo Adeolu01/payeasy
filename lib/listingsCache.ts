@@ -3,9 +3,12 @@ import redis from '../redis';
 const LISTINGS_ALL_KEY = (page: number) => `listings:all:page:${page}`;
 const LISTING_DETAIL_KEY = (id: string) => `listings:detail:${id}`;
 
-export async function getCachedListings(page: number, fetchFn: () => Promise<any[]>) {
+export async function getCachedListings<T>(
+  page: number,
+  fetchFn: () => Promise<T[]>
+): Promise<T[]> {
   const key = LISTINGS_ALL_KEY(page);
-  let listings = await redis.get(key);
+  let listings = (await redis.get(key)) as T[] | null;
   if (!listings) {
     listings = await fetchFn();
     await redis.set(key, listings, { ex: 900 }); // 15 min TTL
@@ -13,9 +16,12 @@ export async function getCachedListings(page: number, fetchFn: () => Promise<any
   return listings;
 }
 
-export async function getCachedListingDetail(id: string, fetchFn: () => Promise<any>) {
+export async function getCachedListingDetail<T>(
+  id: string,
+  fetchFn: () => Promise<T>
+): Promise<T> {
   const key = LISTING_DETAIL_KEY(id);
-  let detail = await redis.get(key);
+  let detail = (await redis.get(key)) as T | null;
   if (!detail) {
     detail = await fetchFn();
     await redis.set(key, detail, { ex: 3600 }); // 1 hour TTL
