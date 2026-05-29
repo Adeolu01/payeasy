@@ -102,7 +102,9 @@ export class TokenHelper {
 
     // Fetch the source account — use the contract address itself as a dummy
     // source for simulation (read-only calls don't need a real signer).
-    const contractId = (this.contract as any).contractId() as string;
+    const contractId = (
+      this.contract as { contractId(): string }
+    ).contractId();
     let sourceAccount;
     try {
       sourceAccount = await server.getAccount(contractId);

@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth/jwt";
 import { findUserById, getNotificationPreferences } from "@/lib/auth/users";
 
-async function resolveUserId(request: Request): Promise<string | null> {
+async function resolveUserId(request: NextRequest): Promise<string | null> {
   let token: string | undefined;
-  const cookies = (request as any).cookies;
+  const cookies = request.cookies;
   if (cookies?.get) {
     token = cookies.get("auth_token")?.value;
   }
@@ -21,7 +21,7 @@ async function resolveUserId(request: Request): Promise<string | null> {
   return null;
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const userId = await resolveUserId(request);
     
