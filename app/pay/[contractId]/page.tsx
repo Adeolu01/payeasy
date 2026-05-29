@@ -4,13 +4,18 @@ import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ContributeForm from "@/components/escrow/ContributeForm";
-import { getContractBasicInfo } from "@/lib/stellar/queries";
+import {
+  getContractBasicInfo,
+  type ContractBasicInfo,
+} from "@/lib/stellar/queries";
 
 export default function PayContractPage() {
   const router = useRouter();
   const params = useParams();
   const { contractId } = params as { contractId: string };
-  const [contractInfo, setContractInfo] = useState<any>(null);
+  const [contractInfo, setContractInfo] = useState<ContractBasicInfo | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,7 +26,7 @@ export default function PayContractPage() {
       try {
         const info = await getContractBasicInfo(contractId);
         setContractInfo(info);
-      } catch (e: any) {
+      } catch {
         setError("Failed to load contract info");
       } finally {
         setLoading(false);

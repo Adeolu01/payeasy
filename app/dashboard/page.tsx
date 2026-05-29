@@ -2,15 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getLandlordEscrows, getLandlordStats } from "@/lib/stellar/queries";
+import {
+  getLandlordEscrows,
+  getLandlordStats,
+  type EscrowContract,
+  type LandlordStats,
+} from "@/lib/stellar/queries";
 import EscrowDashboardSkeleton from "@/components/escrow/EscrowDashboardSkeleton";
 import FundingProgress from "@/components/escrow/FundingProgress";
 import DeadlineCountdown from "@/components/escrow/DeadlineCountdown";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [escrows, setEscrows] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>(null);
+  const [escrows, setEscrows] = useState<EscrowContract[]>([]);
+  const [stats, setStats] = useState<LandlordStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [connected, setConnected] = useState(true); // Replace with actual auth logic
 

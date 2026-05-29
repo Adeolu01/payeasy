@@ -88,14 +88,15 @@ export function getNotificationPreferences(userId: string): NotificationPreferen
   return user?.notificationPreferences || DEFAULT_NOTIFICATIONS;
 }
 
-export function isValidNotificationPatch(body: any): boolean {
+export function isValidNotificationPatch(body: unknown): boolean {
   if (!body || typeof body !== 'object') return false;
 
   const validKeys = ['marketingEmails', 'securityAlerts', 'pushNotifications'];
+  const patch = body as Record<string, unknown>;
 
-  for (const key of Object.keys(body)) {
+  for (const key of Object.keys(patch)) {
     // If the key isn't allowed, or the value isn't a boolean, reject it
-    if (!validKeys.includes(key) || typeof body[key] !== 'boolean') {
+    if (!validKeys.includes(key) || typeof patch[key] !== 'boolean') {
       return false;
     }
   }

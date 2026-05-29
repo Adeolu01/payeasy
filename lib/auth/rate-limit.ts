@@ -109,13 +109,34 @@ export class InMemoryRateLimiter {
 }
 
 /**
+ * Minimal structural type describing the subset of the Redis (Upstash) client
+ * used by the rate limiter. Keeps the limiter decoupled from a specific client.
+ */
+interface RedisLike {
+  zcount(key: string, min: number, max: string): Promise<number>;
+  zadd(
+    key: string,
+    member: { score: number; member: string }
+  ): Promise<unknown>;
+  expire(key: string, seconds: number): Promise<unknown>;
+  zrange(
+    key: string,
+    start: number,
+    stop: number,
+    opts: { withScores: boolean }
+  ): Promise<Array<{ score: number; member?: string }>>;
+  del(...keys: string[]): Promise<unknown>;
+  keys(pattern: string): Promise<string[]>;
+}
+
+/**
  * Redis-backed rate limiter for distributed deployments.
  * Uses Upstash Redis for serverless environments.
  */
 export class RedisRateLimiter {
-  private redis: any;
+  private redis: RedisLike;
 
-  constructor(redisClient: any, private config: RateLimitConfig) {
+  constructor(redisClient: RedisLike, private config: RateLimitConfig) {
     this.redis = redisClient;
   }
 
