@@ -6,6 +6,7 @@ import EscrowStatus from "@/components/escrow/EscrowStatus";
 import ExtendDeadlineModal from "@/components/escrow/ExtendDeadlineModal";
 import FundingProgress from "@/components/escrow/FundingProgress";
 import MultiSigApproval from "@/components/escrow/MultiSigApproval";
+import RefundPreview from "@/components/escrow/RefundPreview";
 import RoommateTable from "@/components/escrow/RoommateTable";
 import ContributeForm from "@/components/escrow/ContributeForm";
 import MyPaymentHistory from "@/components/escrow/MyPaymentHistory";
@@ -490,33 +491,38 @@ export default function EscrowDashboardClient({ contractId }: Props) {
               )}
 
               {/* Claim Refund — visible only when eligible */}
-              {showClaimRefundButton && (
-                <div className="glass-card p-8 flex flex-col sm:flex-row items-center justify-between gap-6 border border-amber-500/20 bg-amber-500/5">
-                  <div className="space-y-1 text-center sm:text-left">
-                    <h3 className="text-white font-black text-lg uppercase tracking-widest">
-                      Refund Available
-                    </h3>
-                    <p className="text-dark-400 text-sm">
-                      The funding deadline has passed and the escrow was not fully funded. You can reclaim your deposit.
-                    </p>
+              {showClaimRefundButton && currentRoommate && (
+                <div className="space-y-4">
+                  <RefundPreview
+                    refundableStroops={currentRoommate.paidAmount}
+                  />
+                  <div className="glass-card p-8 flex flex-col sm:flex-row items-center justify-between gap-6 border border-amber-500/20 bg-amber-500/5">
+                    <div className="space-y-1 text-center sm:text-left">
+                      <h3 className="text-white font-black text-lg uppercase tracking-widest">
+                        Refund Available
+                      </h3>
+                      <p className="text-dark-400 text-sm">
+                        The funding deadline has passed and the escrow was not fully funded. You can reclaim your deposit.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => void handleClaimRefund()}
+                      disabled={isClaimingRefund}
+                      className="btn-primary !w-full sm:!w-auto !justify-center !py-3 !px-8 !rounded-xl font-black uppercase tracking-widest flex items-center gap-2 shrink-0 disabled:opacity-50"
+                    >
+                      {isClaimingRefund ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Claiming...
+                        </>
+                      ) : (
+                        <>
+                          <RotateCcw className="h-4 w-4" />
+                          Claim Refund
+                        </>
+                      )}
+                    </button>
                   </div>
-                  <button
-                    onClick={() => void handleClaimRefund()}
-                    disabled={isClaimingRefund}
-                    className="btn-primary !w-full sm:!w-auto !justify-center !py-3 !px-8 !rounded-xl font-black uppercase tracking-widest flex items-center gap-2 shrink-0 disabled:opacity-50"
-                  >
-                    {isClaimingRefund ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Claiming...
-                      </>
-                    ) : (
-                      <>
-                        <RotateCcw className="h-4 w-4" />
-                        Claim Refund
-                      </>
-                    )}
-                  </button>
                 </div>
               )}
 
