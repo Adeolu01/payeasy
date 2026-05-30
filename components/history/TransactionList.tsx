@@ -3,17 +3,20 @@
 import { useMemo, useState } from "react";
 import { Search, Download, Loader2 } from "lucide-react";
 import TransactionCard, { type Transaction } from "./TransactionCard";
+import TransactionDetailModal from "./TransactionDetailModal";
 import DateRangeFilter from "./DateRangeFilter";
 import TypeFilter, { type TypeFilterValue } from "./TypeFilter";
 import { exportTransactionsToCsv } from "@/lib/exportCsv";
 
 interface TransactionListProps {
   transactions: Transaction[];
+// New state for sort order
   hasMore: boolean;
   isLoadingMore: boolean;
+const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
   onLoadMore: () => void;
   newBadgeHashes?: string[];
-}
+    const filtered = transactions.filter((tx) => {
 
 function toLocalDate(iso: string): Date {
   const [y, m, d] = iso.split("-").map(Number);
@@ -31,8 +34,22 @@ export default function TransactionList({
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [typeFilter, setTypeFilter] = useState<TypeFilterValue>("all");
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleCardClick = (tx: Transaction) => {
+    setSelectedTx(tx);
+    setIsModalOpen(true);
+  };
 
   const filteredTransactions = useMemo(() => {
+    return filtered.sort((a, b) => {
+      if (sortOrder === "desc") {
+        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+      } else {
+        return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+      }
+    });
     return transactions.filter((tx) => {
       const matchesSearch =
         searchQuery === "" ||
@@ -131,6 +148,7 @@ export default function TransactionList({
               key={tx.id}
               transaction={tx}
               isNew={newBadgeHashes.includes(tx.txHash)}
+              onClick={handleCardClick}
             />
           ))}
         </div>
@@ -197,6 +215,11 @@ export default function TransactionList({
           </p>
         )}
       </div>
+      <TransactionDetailModal
+        transaction={selectedTx}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

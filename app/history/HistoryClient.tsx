@@ -1,3 +1,4 @@
+import { test } from "vitest";
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -52,6 +53,17 @@ function mapParsedTransaction(tx: ParsedTransaction): Transaction {
     timestamp: tx.timestamp,
     txHash: tx.hash,
     contractId,
+    fee: tx.fee,
+    sourceAccount: tx.sourceAccount,
+    operationCount: tx.operationCount,
+    operations: tx.operations.map(op => ({
+      type: op.type,
+      from: op.from,
+      to: op.to,
+      amount: op.amount,
+      asset: op.asset,
+      function: op.function
+    })),
   };
 }
 

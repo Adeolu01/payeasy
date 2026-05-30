@@ -6,6 +6,8 @@ import FundingProgress from "@/components/escrow/FundingProgress";
 import MultiSigApproval from "@/components/escrow/MultiSigApproval";
 import RoommateTable from "@/components/escrow/RoommateTable";
 import ContributeForm from "@/components/escrow/ContributeForm";
+import MyPaymentHistory from "@/components/escrow/MyPaymentHistory";
+import PushReminderPrompt from "@/components/escrow/PushReminderPrompt";
 import EscrowDashboardSkeleton from "@/components/escrow/EscrowDashboardSkeleton";
 import TransactionReview from "@/components/wallet/TransactionReview";
 import {
@@ -44,6 +46,7 @@ function formatContractId(contractId: string): string {
   if (contractId.length <= 10) return contractId;
   return `${contractId.slice(0, 4)}...${contractId.slice(-4)}`;
 }
+
 
 export default function EscrowDashboardClient({ contractId }: Props) {
   const { contractState, isLoading, error, refresh } = useContractPolling(contractId);
@@ -267,6 +270,57 @@ export default function EscrowDashboardClient({ contractId }: Props) {
           </div>
         </header>
 
+        {!isLoading && contractState && (
+          <div className="mb-10 space-y-3">
+            {preferences.deadlineReminders && contractState.status === "active" && (
+              <div
+                role="status"
+                className="flex items-start gap-3 rounded-xl border border-brand-500/30 bg-brand-500/10 p-4 text-brand-100"
+              >
+                <Clock className="h-5 w-5 mt-0.5 shrink-0 text-brand-300" />
+                <div className="text-sm">
+                  <p className="font-semibold">Contribution deadline approaching</p>
+                  <p className="text-brand-200/80 text-xs mt-1">
+                    Funding closes on {contractState.deadline}. Manage alerts in{" "}
+                    <Link href="/settings" className="underline hover:text-white">
+                      settings
+                    </Link>
+                    .
+                  </p>
+                </div>
+              </div>
+            )}
+            {preferences.paymentConfirmed && contractState.status === "funded" && (
+              <div
+                role="status"
+                className="flex items-start gap-3 rounded-xl border border-accent-500/30 bg-accent-500/10 p-4 text-accent-100"
+              >
+                <CheckCircle2 className="h-5 w-5 mt-0.5 shrink-0 text-accent-300" />
+                <div className="text-sm">
+                  <p className="font-semibold">Payment confirmed</p>
+                  <p className="text-accent-200/80 text-xs mt-1">
+                    This escrow is fully funded and ready for release.
+                  </p>
+                </div>
+              </div>
+            )}
+            {preferences.refundAvailable && contractState.status === "expired" && (
+              <div
+                role="status"
+                className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-amber-100"
+              >
+                <RefreshCcw className="h-5 w-5 mt-0.5 shrink-0 text-amber-300" />
+                <div className="text-sm">
+                  <p className="font-semibold">Refund available</p>
+                  <p className="text-amber-200/80 text-xs mt-1">
+                    This escrow expired without full funding — your contribution can be refunded.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Dashboard Grid — skeleton or real content */}
         <div className="space-y-12">
           {isLoading ? (
@@ -366,8 +420,9 @@ export default function EscrowDashboardClient({ contractId }: Props) {
               <RoommateTable roommates={contractState!.roommates} />
 
               {/* Contribute Form — visible only to the current roommate if they haven't paid full share */}
-              {currentRoommate && !currentRoommate.isPaid && contractState?.status !== "funded" && (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+              {currentRoommate && contractState?.status !== "funded" && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-4">
+                  <PushReminderPrompt contractId={contractId} roommateAddress={currentRoommate.address} />
                   <ContributeForm
                     escrowId={contractId}
                     expectedShare={currentRoommate.expectedShare}
@@ -377,6 +432,13 @@ export default function EscrowDashboardClient({ contractId }: Props) {
                     onSuccess={() => void refresh()}
                   />
                 </div>
+              )}
+
+              {currentRoommate && (
+                <MyPaymentHistory
+                  contractId={contractId}
+                  roommateAddress={currentRoommate.address}
+                />
               )}
 
               {/* Claim Refund — visible only when eligible */}

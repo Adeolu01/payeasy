@@ -1,5 +1,6 @@
 import { Github } from "lucide-react";
 import Link from "next/link";
+import NetworkIndicator from "@/components/ui/network-indicator";
 
 const footerLinks = {
   Product: [
@@ -77,6 +78,7 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} PayEasy. Open source under MIT License.
           </p>
           <div className="flex items-center gap-6">
+            <NetworkIndicator />
             <Link href="/privacy" className="text-dark-600 hover:text-dark-400 text-xs transition-colors">
               Privacy Policy
             </Link>

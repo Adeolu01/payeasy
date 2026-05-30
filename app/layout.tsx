@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "@/lib/env";
 import { AppShell } from "@/components/ui/app-shell";
-import { StellarAuthProvider } from "@/contexts/StellarAuthContext";
+import { PageTransition } from "@/components/ui/page-transition";
+import { StellarProvider } from "@/context/StellarContext";
+import { ToastProvider } from "@/components/ui/toast-provider";
+import { EmailAuthProvider } from "@/context/EmailAuthContext";
 import "./globals.css";
 
 const inter = Inter({
@@ -52,12 +55,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+      </head>
       <body
         className={`${inter.variable} ${spaceGrotesk.variable} ${jetBrainsMono.variable} font-sans`}
       >
-        <StellarAuthProvider>
-          <AppShell>{children}</AppShell>
-        </StellarAuthProvider>
+        <ToastProvider>
+          <EmailAuthProvider>
+            <StellarProvider>
+              <AppShell>
+                <PageTransition>{children}</PageTransition>
+              </AppShell>
+            </StellarProvider>
+          </EmailAuthProvider>
+        </ToastProvider>
       </body>
     </html>
   );
