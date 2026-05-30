@@ -64,13 +64,15 @@ export default function RootLayout({
       >
         <WebVitals />
         <ToastProvider>
-          <EmailAuthProvider>
-            <StellarProvider>
-              <AppShell>
-                <PageTransition>{children}</PageTransition>
-              </AppShell>
-            </StellarProvider>
-          </EmailAuthProvider>
+          <QueryProvider>
+            <EmailAuthProvider>
+              <StellarProvider>
+                <AppShell>
+                  <PageTransition>{children}</PageTransition>
+                </AppShell>
+              </StellarProvider>
+            </EmailAuthProvider>
+          </QueryProvider>
         </ToastProvider>
       </body>
     </html>

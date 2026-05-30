@@ -32,7 +32,7 @@ import { createLandlordMajorityConfig, type ApprovalState } from "@/lib/stellar/
 import RefreshIndicator from "@/components/escrow/RefreshIndicator";
 import { useStellar } from "@/context/StellarContext";
 import { claimRefund, stroopsToXlm } from "@/lib/stellar/actions/claimRefund";
-import useContractPolling from "@/hooks/useContractPolling";
+import useContractState from "@/hooks/useContractState";
 import { buildReleaseXdr, signAndSubmitRelease } from "@/lib/stellar/actions/release";
 import { useToast } from "@/hooks/useToast";
 import CopyButton from "@/components/ui/copy-button";
@@ -42,6 +42,7 @@ import DisputeFlag from "@/components/escrow/DisputeFlag";
 
 interface Props {
   contractId: string;
+  initialContractState?: any;
 }
 
 type ReleasePhase = "idle" | "building" | "review" | "submitting";
@@ -52,8 +53,8 @@ function formatContractId(contractId: string): string {
 }
 
 
-export default function EscrowDashboardClient({ contractId }: Props) {
-  const { contractState, isLoading, error, refresh } = useContractPolling(contractId);
+export default function EscrowDashboardClient({ contractId, initialContractState }: Props) {
+  const { contractState, isLoading, error, refresh } = useContractState(contractId, initialContractState);
   const { isConnected, publicKey } = useStellar();
   const toast = useToast();
 
