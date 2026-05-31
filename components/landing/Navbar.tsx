@@ -5,6 +5,7 @@ import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ConnectWalletButton from "@/components/wallet/ConnectWalletButton";
+import { LanguageSelector } from "@/components/ui/language-selector";
 
 export default function Navbar() {
   const router = useRouter();
@@ -58,6 +59,7 @@ export default function Navbar() {
 
         {/* CTA Buttons */}
         <div className="hidden md:flex items-center gap-3">
+          <LanguageSelector />
           <a href="#" className="btn-secondary !py-2.5 !px-5 !text-sm !rounded-lg">
             Sign In
           </a>
@@ -97,6 +99,9 @@ export default function Navbar() {
               </a>
             ))}
             <div className="h-px bg-white/10 my-2" />
+            <div className="flex justify-center">
+              <LanguageSelector />
+            </div>
             <a href="#" className="btn-secondary !justify-center">
               Sign In
             </a>

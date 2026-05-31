@@ -8,6 +8,9 @@ try {
   // Keep builds working until the dependency is installed locally.
 }
 
+const createNextIntlPlugin = require("next-intl/plugin");
+const withNextIntl = createNextIntlPlugin("./i18n.ts");
+
 const securityHeaders = [
   {
     key: "X-Frame-Options",
@@ -59,4 +62,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withBundleAnalyzer(nextConfig);
+module.exports = withBundleAnalyzer(withNextIntl(nextConfig));
