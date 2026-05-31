@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "@/lib/env";
 import { AppShell } from "@/components/ui/app-shell";
 import { StellarAuthProvider } from "@/contexts/StellarAuthContext";
+import { LocaleDirection } from "@/components/ui/locale-direction";
+import { BottomNav } from "@/components/ui/bottom-nav";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -32,9 +34,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body className="pb-16 md:pb-0">
+        <LocaleDirection />
         <StellarAuthProvider>
           <AppShell>{children}</AppShell>
+          <BottomNav />
         </StellarAuthProvider>
       </body>
     </html>

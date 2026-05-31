@@ -2,6 +2,7 @@
 
 import { User, CheckCircle2, Clock, XCircle, Users, Activity, ExternalLink } from "lucide-react";
 import { getExplorerLink } from "@/lib/stellar/explorer";
+import { formatXLM } from "@/lib/utils/format";
 
 export interface Roommate {
   /**
@@ -88,10 +89,10 @@ export default function RoommateList({ roommates }: RoommateListProps) {
                    <p className="text-[10px] text-dark-600 uppercase tracking-widest font-black mb-1 group-hover:text-dark-400 transition-colors">On-Chain Contribution</p>
                    <div className="flex flex-col items-end">
                       <span className={`text-2xl font-black tracking-tighter leading-none ${roommate.isPaid ? 'text-accent-400' : 'text-white'}`}>
-                        {roommate.paidAmount} <span className="text-[10px] text-dark-600 ml-1">Paid</span>
+                        {formatXLM(parseFloat(roommate.paidAmount))} <span className="text-[10px] text-dark-600 ml-1">Paid</span>
                       </span>
                       <span className="text-[11px] text-dark-500 font-bold uppercase tracking-tight mt-1.5 bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
-                        Goal: {roommate.expectedShare} <span className="opacity-50">XLM</span>
+                        Goal: {formatXLM(parseFloat(roommate.expectedShare))} <span className="opacity-50">XLM</span>
                       </span>
                    </div>
                 </div>
