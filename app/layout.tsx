@@ -8,6 +8,8 @@ import { StellarProvider } from "@/context/StellarContext";
 import { ToastProvider } from "@/components/ui/toast-provider";
 import { EmailAuthProvider } from "@/context/EmailAuthContext";
 import { WebVitals } from "@/components/web-vitals";
+import { LocaleDirection } from "@/components/ui/locale-direction";
+import { BottomNav } from "@/components/ui/bottom-nav";
 import "./globals.css";
 
 const inter = Inter({
@@ -64,8 +66,9 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body
-        className={`${inter.variable} ${spaceGrotesk.variable} ${jetBrainsMono.variable} font-sans`}
+        className={`${inter.variable} ${spaceGrotesk.variable} ${jetBrainsMono.variable} font-sans pb-16 md:pb-0`}
       >
+        <LocaleDirection />
         <WebVitals />
         <ToastProvider>
           <QueryProvider>
@@ -74,6 +77,7 @@ export default function RootLayout({
                 <AppShell>
                   <PageTransition>{children}</PageTransition>
                 </AppShell>
+                <BottomNav />
               </StellarProvider>
             </EmailAuthProvider>
           </QueryProvider>
